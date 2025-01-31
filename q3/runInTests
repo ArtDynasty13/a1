@@ -2,7 +2,7 @@
 
 if [ $# -ne 2 ] # dollar hash is the number of command line arguments
   then
-    echo "Usage: $0 <filename>" >&2 # stderr
+    echo "Usage: $0 commandToTest testSetFile" >&2 # stderr
     exit 1 # non-zero exit code to signal unintended behaviour
   fi
 
@@ -12,8 +12,7 @@ test_set_file=$2
 for arg in $(cat ${test_set_file}); do
   myTemp=$(mktemp)
   $cmd < "${arg}.in" > ${myTemp}
-  diff "${arg}.out" "${myTemp}" > /dev/null
-  if [ $(echo $?) -eq 0 ];
+  if diff "${arg}.out" "${myTemp}" > /dev/null;
     then
       echo "Test ${arg} passed"
     else
