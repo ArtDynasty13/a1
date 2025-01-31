@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $# -ne 2 ] # dollar hash is the number of command line arguments
+  then
+    echo "Usage: $0 <filename>" >&2 # stderr
+    exit 1 # non-zero exit code to signal unintended behaviour
+  fi
+
+cmd=$1
+test_set_file=$2
+
+for arg in $(cat ${test_set_file}); do
+  myTemp=$(mktemp)
+  $cmd $(cat "${arg}.args") < "${arg}.in" > ${myTemp}
+  diff "${arg}.out" "${myTemp}" > /dev/null
+  if [ $(echo $?) -eq 0 ];
+    then
+      echo "Test ${arg} passed"
+    else
+      echo "Test ${arg} failed"
+      echo "Expected output:" #VERIFY SPACING
+      cat "${arg}.out"
+      echo "Actual output:"
+      cat "${myTemp}"
+    fi
+rm $myTemp
+done
