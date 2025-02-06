@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [[ "$#" -ne 2 ]]; then
+  echo "Usage: $0 <command> <test_set_file>" >&2
+  exit 1
+fi
+
+command=$1
+test_set_file=$2
+
+while IFS= read -r arg || [[ -n "$arg" ]]; do
+  temp_out=$(mktemp)
+
+  # Check if the .args file exists
+  if [[ -f "${arg}.args" ]]; then
+    args=$(cat "${arg}.args")
+  else
+    args=""
+  fi
+
+  # Run the command with the arguments from the .args file
+  $command $args < "${arg}.in" > "$temp_out"
+
+  if diff "${arg}.out" "$temp_out" > /dev/null; then
+    echo "Test ${arg} passed"
+  else
+    echo "Test ${arg} failed"
+    echo "Expected output:"
+    cat "${arg}.out"
+    echo "Actual output:"
+    cat "$temp_out"
+  fi
+  rm -f "$temp_out"
+
+done < "$test_set_file"

@@ -9,8 +9,8 @@ if [ $# -ne 2 ] # dollar hash is the number of command line arguments
 cmd=$1
 test_set_file=$2
 
+myTemp=$(mktemp)
 for arg in $(cat ${test_set_file}); do
-  myTemp=$(mktemp)
   $cmd < "${arg}.in" > ${myTemp}
   if diff "${arg}.out" "${myTemp}" > /dev/null;
     then
